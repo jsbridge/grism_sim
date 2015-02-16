@@ -6,6 +6,7 @@
 ## Notes: 1.) All runs of aXeSIM use the 'exponential_disk.fits' and the 1400nm PSF      ##
 ##            fits files, i.e., no need to use mkobjects code                            ##
 ##        2.) Assumes a set AGN line ratio of [O III]/Hbeta = 0.6                        ##
+##        3.) Must use Jon's IDL code before executing sim.gradients                     ##
 ##                                                                                       ##
 ###########################################################################################
 
