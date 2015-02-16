@@ -16,6 +16,7 @@ import pyfits
 import matplotlib.pyplot as plt
 import os
 from astropy.cosmology import FlatLambdaCDM
+from glob import glob
 
 
 def simulate():
@@ -255,52 +256,64 @@ def SFRandMtoR(sSFR, mass):
     return logOIIIHb
 
 
-def gradient(file_ext):
+def gradient():
 
-    wave_in, flux_in = np.loadtxt('extract1dnew/'+file_ext+'_rinn.dat', unpack=True)
-    wave_in, err_in = np.loadtxt('extract1dnew/'+file_ext+'_rinn_err.dat', unpack=True)
-    wave_out, flux_out = np.loadtxt('extract1dnew/'+file_ext+'_rout.dat', unpack=True)
-    wave_out, err_out = np.loadtxt('extract1dnew/'+file_ext+'_rout_err.dat', unpack=True)
+    files = glob('../extract1dnew/*_rout.dat')
+    x = open('../gradients.dat', 'w')
+    x.write('#             ID                    in_ratio          out_ratio\n')
 
-    flux_new_in, flux_new_out = flux_in, flux_out
-    r = 0
-    while r < 6:
+    for f in files:
 
-        sort = sorted(flux_new_in)
-        size = np.size(flux_new_in)
-        bad = np.logical_and(flux_new_in > sort[int(0.15*size)], (flux_new_in < sort[int(0.85*size)]))
-        fit = np.poly1d(np.polyfit(np.array(wave_in)[bad], np.array(flux_new_in)[bad], 2))
-        flux_new_in = flux_new_in - fit(wave_in)
-        sort = sorted(flux_new_out)
-        size = np.size(flux_new_out)
-        bad = np.logical_and(flux_new_out > sort[int(0.15*size)], (flux_new_out < sort[int(0.85*size)]))
-        fit = np.poly1d(np.polyfit(np.array(wave_in)[bad], np.array(flux_new_out)[bad], 2))
-        flux_new_out = flux_new_out - fit(wave_in)
-        r += 1
-        
-    flux_in = flux_new_in
-    flux_out = flux_new_out
-
-#    plt.step(wave_in, flux_in)
-#    plt.step(wave_in, flux_out)
-#    plt.show()
+        file_ext = f.rstrip('_rout.dat')
     
-    lines = [4861, 4959, 5007]
+        wave_in, flux_in = np.loadtxt(file_ext+'_rinn.dat', unpack=True)
+        wave_in, err_in = np.loadtxt(file_ext+'_rinn_err.dat', unpack=True)
+        wave_out, flux_out = np.loadtxt(file_ext+'_rout.dat', unpack=True)
+        wave_out, err_out = np.loadtxt(file_ext+'_rout_err.dat', unpack=True)
 
-    ind = []
-    for l in lines:
-        ind.append((np.abs(wave_in-l)).argmin())
+        flux_new_in, flux_new_out = flux_in, flux_out
+        r = 0
+        while r < 6:
+
+            sort = sorted(flux_new_in)
+            size = np.size(flux_new_in)
+            bad = np.logical_and(flux_new_in > sort[int(0.15*size)], (flux_new_in < sort[int(0.85*size)]))
+            fit = np.poly1d(np.polyfit(np.array(wave_in)[bad], np.array(flux_new_in)[bad], 2))
+            flux_new_in = flux_new_in - fit(wave_in)
+            sort = sorted(flux_new_out)
+            size = np.size(flux_new_out)
+            bad = np.logical_and(flux_new_out > sort[int(0.15*size)], (flux_new_out < sort[int(0.85*size)]))
+            fit = np.poly1d(np.polyfit(np.array(wave_in)[bad], np.array(flux_new_out)[bad], 2))
+            flux_new_out = flux_new_out - fit(wave_in)
+            r += 1
         
-    Hbeta_in = flux_in[ind[0]]
-    Hbeta_out = flux_out[ind[0]]
-    OIII4_in = flux_in[ind[1]]
-    OIII4_out = flux_out[ind[1]]
-    OIII5_in = flux_in[ind[2]]
-    OIII5_out = flux_out[ind[2]]
+        flux_in = flux_new_in
+        flux_out = flux_new_out
 
-    ratio_in = OIII5_in/Hbeta_in
-    ratio_out = OIII5_out/Hbeta_out
+        #plt.step(wave_in, flux_in)
+        #plt.step(wave_in, flux_out)
+        #plt.show()
+    
+        lines = [4861, 4959, 5007]
 
-    print ratio_in, ratio_out
+        ind = []
+        for l in lines:
+            ind.append((np.abs(wave_in-l)).argmin())
+        
+        Hbeta_in = flux_in[ind[0]]
+        Hbeta_out = flux_out[ind[0]]
+        OIII4_in = flux_in[ind[1]]
+        OIII4_out = flux_out[ind[1]]
+        OIII5_in = flux_in[ind[2]]
+        OIII5_out = flux_out[ind[2]]
 
-    return ratio_in, ratio_out
+        ratio_in = OIII5_in/Hbeta_in
+        ratio_out = OIII5_out/Hbeta_out
+
+        x.write(str(1)+'.'+file_ext.lstrip('../extract1dnew'))
+        x.write('    '+str(ratio_in))
+        x.write('    '+str(ratio_out)+'\n') 
+
+    x.close()
+    
+    return 
