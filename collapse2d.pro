@@ -27,6 +27,13 @@
 ;;    but doesn't touch 4959 < wl0 < 5007.  Also treats the [OII]
 ;;    and [SII] doublets and Ha+[NII] as single lines.
 ;; 
+;; **************
+;; Copyright 2015 Jonathan R. Trump, Penn State University
+;;
+;; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details, available at <http://www.gnu.org/licenses/>.
+;; **************
 ;; --------------------------------------------------------------------
 
 pro collapse2d, infile, outdir=outdir
